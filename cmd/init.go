@@ -1,4 +1,4 @@
-package silo
+package cmd
 
 import (
 	"os"

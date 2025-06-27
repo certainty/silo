@@ -3,5 +3,6 @@ package ux
 import "fmt"
 
 func Info(format string, args ...any) {
-	fmt.Println(format, args)
+	fmt.Printf(format, args...)
+	fmt.Println()
 }
