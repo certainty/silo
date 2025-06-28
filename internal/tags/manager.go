@@ -11,6 +11,15 @@ type Manager struct {
 	Silo silo.Silo
 }
 
+func (m *Manager) AddTags(filePath string, tags []string) error {
+	for _, tag := range tags {
+		if err := m.AddTag(filePath, tag); err != nil {
+			return fmt.Errorf("failed to add tag %s to file %s: %w", tag, filePath, err)
+		}
+	}
+	return nil
+}
+
 func (m *Manager) AddTag(filePath, tag string) error {
 	absFile, err := filepath.Abs(filePath)
 
