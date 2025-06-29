@@ -1,17 +1,12 @@
 package cmd
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/alecthomas/kong"
 	"github.com/certainty/silo/internal/silo"
 	"github.com/certainty/silo/internal/ux"
 )
 
-type InitCmd struct {
-	Path string `arg:"" optional:"" help:"Path to initialize the silo. Defaults to current directory."`
-}
+type InitCmd struct{}
 
 type InfoCmd struct{}
 
@@ -23,25 +18,22 @@ type CLI struct {
 }
 
 func (cmd *InitCmd) Run(ctx *kong.Context, cli *CLI) error {
-	if cmd.Path == "" {
-		cmd.Path = "."
+	path := "."
+	if cli.Root != nil && *cli.Root != "" {
+		path = *cli.Root
 	}
 
-	if _, err := os.Stat(filepath.Join(cmd.Path, ".silo")); !os.IsNotExist(err) {
-		ux.Info("Silo already initialized at %s", cmd.Path)
-		return nil
+	if err := silo.InitSilo(path); err != nil {
+		return err
 	}
 
-	os.MkdirAll(filepath.Join(cmd.Path, ".silo"), 0755)
-
-	ux.Info("Silo initialized at %s", cmd.Path)
+	ux.Info("Silo initialized at %s", path)
 	return nil
 }
 
 func (cmd *InfoCmd) Run(ctx *kong.Context, cli *CLI) error {
 	s, err := silo.FindEffectiveSilo(cli.Root)
 	if err != nil {
-		ux.Error("Failed to find silo root: %v", err)
 		return err
 	}
 

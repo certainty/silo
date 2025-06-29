@@ -10,6 +10,28 @@ type Silo struct {
 	Root string
 }
 
+func InitSilo(root string) error {
+	info, err := os.Stat(root)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("Can't create silo. Directory does not exist")
+		}
+		return fmt.Errorf("Failed to access directory %s: %w", root, err)
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("Can't create silo here. %s is not a directory", root)
+	}
+
+	// make sure silo does not already exist there
+	siloPath := filepath.Join(root, ".silo")
+	if _, err := os.Stat(siloPath); !os.IsNotExist(err) {
+		return fmt.Errorf("Silo already exists at %s", siloPath)
+	}
+
+	os.MkdirAll(siloPath, 0755)
+	return nil
+}
+
 func FindEffectiveSilo(maybeRoot *string) (Silo, error) {
 	if maybeRoot != nil && *maybeRoot != "" {
 		if !IsSilo(*maybeRoot) {
