@@ -7,7 +7,8 @@ import (
 )
 
 type Silo struct {
-	Root string
+	Root    string
+	DataDir string
 }
 
 func InitSilo(root string) error {
@@ -37,14 +38,14 @@ func FindEffectiveSilo(maybeRoot *string) (Silo, error) {
 		if !IsSilo(*maybeRoot) {
 			return Silo{}, fmt.Errorf("the specified path is not a valid silo root: %s", *maybeRoot)
 		}
-		return Silo{Root: *maybeRoot}, nil
+		return Silo{Root: *maybeRoot, DataDir: filepath.Join(*maybeRoot, ".silo")}, nil
 	}
 
 	siloRoot, err := FindRootFromCWD()
 	if err != nil {
 		return Silo{}, fmt.Errorf("failed to find silo root: %w", err)
 	}
-	return Silo{Root: siloRoot}, nil
+	return Silo{Root: siloRoot, DataDir: filepath.Join(siloRoot, ".silo")}, nil
 }
 
 func IsSilo(path string) bool {
@@ -82,8 +83,4 @@ func FindRoot(startPath string) (string, error) {
 		dir = parent
 	}
 	return "", fmt.Errorf(".silo directory not found")
-}
-
-func (s Silo) TagsDir() string {
-	return filepath.Join(s.Root, ".silo", "tags")
 }
